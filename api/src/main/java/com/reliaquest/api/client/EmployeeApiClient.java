@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -18,34 +16,38 @@ public class EmployeeApiClient {
 
     private final WebClient employeeWebClient;
 
-    public Flux<Employee> getAllEmployees() {
+    public List<Employee> getAllEmployees() {
         return employeeWebClient.get()
                 .retrieve()
                 .bodyToMono(ApiResponseList.class)
-                .flatMapMany(resp -> Flux.fromIterable(resp.getData()));
+                .map(ApiResponseList::getData)
+                .block();
     }
 
-    public Mono<Employee> getEmployeeById(String id) {
+    public Employee getEmployeeById(String id) {
         return employeeWebClient.get()
                 .uri("/{id}", id)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
-                .map(ApiResponse::getData);
+                .map(ApiResponse::getData)
+                .block();
     }
 
-    public Mono<Employee> createEmployee(CreateEmployeeRequest request) {
+    public Employee createEmployee(CreateEmployeeRequest request) {
         return employeeWebClient.post()
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
-                .map(ApiResponse::getData);
+                .map(ApiResponse::getData)
+                .block();
     }
 
-    public Mono<String> deleteEmployeeByName(String name) {
+    public String deleteEmployeeByName(String name) {
         return employeeWebClient.delete()
                 .uri("/{name}", name)
                 .retrieve()
                 .bodyToMono(ApiDeleteResponse.class)
-                .map(resp -> name); // return deleted name
+                .map(resp -> name)
+                .block();
     }
 }

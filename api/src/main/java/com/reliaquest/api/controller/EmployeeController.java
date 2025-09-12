@@ -5,6 +5,7 @@ import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/v1/employees")
 public class EmployeeController implements IEmployeeController<Employee, CreateEmployeeRequest> {
 
@@ -20,42 +22,63 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     @GetMapping
     @Override
     public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+        log.info("GET /employees - Fetching all employees");
+        List<Employee> employees = employeeService.getAllEmployees();
+        log.info("Returned {} employees", employees.size());
+        return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/search/{searchString}")
     @Override
     public ResponseEntity<List<Employee>> getEmployeesByNameSearch(@PathVariable String searchString) {
-        return ResponseEntity.ok(employeeService.searchEmployeesByName(searchString));
+        log.info("GET /employees/search/{} - Searching employees by name", searchString);
+        List<Employee> employees = employeeService.searchEmployeesByName(searchString);
+        log.info("Found {} employees matching '{}'", employees.size(), searchString);
+        return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/{id}")
     @Override
     public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
-        return ResponseEntity.ok(employeeService.getEmployeeById(id));
+        log.info("GET /employees/{} - Fetching employee by ID", id);
+        Employee employee = employeeService.getEmployeeById(id);
+        log.info("Found employee: {}", employee.getEmployee_name());
+        return ResponseEntity.ok(employee);
     }
 
     @GetMapping("/highestSalary")
     @Override
     public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
-        return ResponseEntity.ok(employeeService.getHighestSalary());
+        log.info("GET /employees/highestSalary - Fetching highest salary");
+        int highestSalary = employeeService.getHighestSalary();
+        log.info("Highest salary found: {}", highestSalary);
+        return ResponseEntity.ok(highestSalary);
     }
 
     @GetMapping("/topTenHighestEarningEmployeeNames")
     @Override
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
-        return ResponseEntity.ok(employeeService.getTop10HighestEarningEmployeeNames());
+        log.info("GET /employees/topTenHighestEarningEmployeeNames - Fetching top 10 earning employee names");
+        List<String> topEarners = employeeService.getTop10HighestEarningEmployeeNames();
+        log.info("Returned top 10 highest earning employee names");
+        return ResponseEntity.ok(topEarners);
     }
 
     @PostMapping
     @Override
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody CreateEmployeeRequest employeeInput) {
-        return ResponseEntity.ok(employeeService.createEmployee(employeeInput));
+        log.info("POST /employees - Creating employee with name: {}", employeeInput.getName());
+        Employee createdEmployee = employeeService.createEmployee(employeeInput);
+        log.info("Employee created with ID: {}", createdEmployee.getId());
+        return ResponseEntity.status(201).body(createdEmployee);
     }
 
     @DeleteMapping("/{id}")
     @Override
     public ResponseEntity<String> deleteEmployeeById(@PathVariable String id) {
-        return ResponseEntity.ok(employeeService.deleteEmployeeByName(id));
+        log.info("DELETE /employees/{} - Deleting employee", id);
+        String deleted = employeeService.deleteEmployeeByName(id);
+        log.info("Employee deleted with ID: {}", id);
+        return ResponseEntity.ok(deleted);
     }
 }

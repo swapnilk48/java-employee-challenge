@@ -4,6 +4,8 @@ import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.model.CreateEmployeeRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -42,11 +44,16 @@ public class EmployeeApiClient {
                 .block();
     }
 
-    public String deleteEmployeeByName(String name) {
-        return employeeWebClient.delete()
-                .uri("/{name}", name)
+    public String deleteEmployeeByName(Employee emp) {
+        String name = emp.getEmployee_name();
+
+        DeleteMockEmployeeInput body = new DeleteMockEmployeeInput(name);
+        return employeeWebClient
+                .method(HttpMethod.DELETE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
                 .retrieve()
-                .bodyToMono(ApiDeleteResponse.class)
+                .bodyToMono(String.class)
                 .map(resp -> name)
                 .block();
     }

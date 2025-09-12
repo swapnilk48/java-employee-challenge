@@ -50,7 +50,7 @@ public class EmployeeService {
         return employeeApiClient.createEmployee(request);
     }
 
-    public String deleteEmployeeByName(String name) {
-        return employeeApiClient.deleteEmployeeByName(name);
+    public String deleteEmployeeByName(Employee emp) {
+        return employeeApiClient.deleteEmployeeByName(emp);
     }
 }

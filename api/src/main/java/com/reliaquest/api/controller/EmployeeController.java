@@ -6,6 +6,7 @@ import com.reliaquest.api.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,9 +77,20 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     @DeleteMapping("/{id}")
     @Override
     public ResponseEntity<String> deleteEmployeeById(@PathVariable String id) {
-        log.info("DELETE /employees/{} - Deleting employee", id);
-        String deleted = employeeService.deleteEmployeeByName(id);
+        log.info("DELETE /employees/{} - Fetching employee details", id);
+
+        Employee employee = employeeService.getEmployeeById(id);
+        if (employee == null) {
+            log.warn("Employee with ID {} not found", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Employee not found with ID: " + id);
+        }
+
+        log.info("Deleting employee with name: {}", employee.getEmployee_name());
+        String deleted = employeeService.deleteEmployeeByName(employee);
+
         log.info("Employee deleted with ID: {}", id);
         return ResponseEntity.ok(deleted);
     }
+
 }

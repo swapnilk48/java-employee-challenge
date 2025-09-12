@@ -2,9 +2,11 @@ package com.reliaquest.api.model;
 
 import jakarta.validation.constraints.*;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class CreateEmployeeRequest {
 
     @NotBlank(message = "Name must not be blank")
